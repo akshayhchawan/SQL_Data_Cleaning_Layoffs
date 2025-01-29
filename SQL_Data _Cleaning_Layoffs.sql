@@ -3,7 +3,7 @@
 -- 1.Remove Duplicates
 -- 2.Standardize the Data
 -- 3.Null Values and Blank Values
--- 4.Remove Any Columns
+-- 4.Remove Any unnecessory Columns
 
 --creating duplicate table
 CREATE TABLE layoffs_staging
