@@ -1,19 +1,20 @@
-# SQL_Data_Cleaning_Layoffs
+# SQL_Data_Cleaning_Layoffs_Dataset
 
-The Most Crucial Step in Data Analysis: Data Cleaning! Without it, you'll never uncover the true insights hidden in your dataset. Recently, I completed a data cleaning project in MySQL on a dataset covering layoffs, and it reminded me just how vital this phase is for any analysis.
+**Situation:**
+The project involved working with a messy layoffs dataset, which contained errors like duplicates, inconsistencies, missing values, and irrelevant columns. This made the data difficult to analyze and unreliable for any insights.
 
-Situation: I was tasked with preparing a dataset on company layoffs, but the raw data was riddled with duplicates, inconsistencies, and missing values—challenges that could skew any meaningful insights.
+**Task:**
+The goal was to clean the dataset, ensuring it was structured, consistent, and ready for analysis. The challenge was to handle a variety of data issues, such as duplicate entries, null values, and standardized formats, to make the dataset accurate and usable.
 
-Task: My objective was to clean the dataset and ensure its accuracy, so that we could proceed with a reliable analysis of layoff patterns. The goal was to standardize, clean, and make the data analysis-ready without altering the integrity of the original data.
+**Action:**
+I applied four key data cleaning techniques:
+1.	Removed duplicates - Identified and deleted duplicate entries that could skew analysis.
+2.	Standardized data - Ensured consistent naming conventions and formats across the dataset, removing extra spaces or unnecessary characters..
+3.	Handled missing values - Populated blank values where possible and removed rows that couldn’t be corrected.
+4.	Removed unnecessary columns - Eliminated irrelevant columns that didn’t contribute to the analysis.
 
-Action: I began by importing the raw CSV file into MySQL and immediately duplicated it to safeguard against any potential mistakes. Then, I systematically tackled the key issues:
-A) Duplicates Removal: Using the row number function, I identified and flagged duplicate rows that lacked a unique identifier, allowing me to clean the dataset safely.
-B) Standardization: I standardized columns like "Company" (removing extra spaces), "Industry," and "Country" by utilizing the Trim function and setting values uniformly. The date column, 
-   which was in text format, was converted to the appropriate date format using STR_TO_DATE().
-C) Handling Nulls: Missing values in the "Industry" column were populated by self-joining based on company and location, while blank values were replaced with NULL for better consistency.
-D) Irrelevant Data Removal: I filtered out rows where both "Percentage Laid Off" and "Total Laid Off" were missing since these rows wouldn't contribute to the analysis.
-E) Final Touch: I dropped any unnecessary columns like row_num to keep the dataset clean and focused.
+**Result:**
+The cleaned dataset was structured, consistent, and ready for analysis, ensuring accurate insights could be drawn. It improved the integrity of the data and made it easier to use for future reporting and analysis.
 
-Result: The result was a clean, standardized dataset ready for deep analysis. This process ensured that the insights derived from it—such as layoff trends, regional impact, and industry-specific data—were accurate and trustworthy.
-
-Key Takeaway: Data cleaning is often overlooked, but it’s the backbone of any robust analysis. My work on this project helped me appreciate how meticulous cleaning opens the doors to meaningful insights. Looking forward to applying these techniques to new challenges!
+**Key Takeaway:**
+Data cleaning is often overlooked, but it’s the backbone of any robust analysis. My work on this project helped me appreciate how meticulous cleaning opens the doors to meaningful insights. Looking forward to applying these techniques to new challenges!
