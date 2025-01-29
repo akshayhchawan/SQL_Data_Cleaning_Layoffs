@@ -1,12 +1,11 @@
 -- Data cleaning-- 
 
--- Remove Duplicates
--- Standardize the Data
--- Null Values and Blank Values
--- Remove Any Columns
+-- 1.Remove Duplicates
+-- 2.Standardize the Data
+-- 3.Null Values and Blank Values
+-- 4.Remove Any Columns
 
-
--- Creating Staging means creating duplicate table
+--creating duplicate table
 CREATE TABLE layoffs_staging
 LIKE layoffs;
 
@@ -17,24 +16,24 @@ FROM layoffs;
 SELECT * 
 FROM layoffs_staging;
 
--- Remove Duplicates
+--1.Remove Duplicates
+-- assigning row number to duplicate rows
+SELECT *,  
+ROW_NUMBER() OVER (  
+    PARTITION BY company, location, industry, total_laid_off, percentage_laid_off, `date`, stage, country, funds_raised_millions  
+) AS row_num  
+FROM layoffs_staging;
 
--- Using row number we are finding duplicate rows
-select * , 
-ROW_NUMBER() OVER(
-PARTITION BY Company, location, industry, total_laid_off, percentage_laid_off, `date`, stage, country, funds_raised_millions) as row_num
-From layoffs_staging;
-
--- To filter out rows with more than rows 1 row number
-WITH duplicate_cte as
-(
-select *, 
-ROW_NUMBER() OVER(
-PARTITION BY Company, location, industry, total_laid_off, percentage_laid_off, `date`, stage, country, funds_raised_millions) as row_num
-From layoffs_staging
-)
-SELECT *
-FROM duplicate_cte
+-- To check the rows with rank greater than 1
+WITH duplicate_cte AS (  
+    SELECT *,  
+    ROW_NUMBER() OVER (  
+        PARTITION BY company, location, industry, total_laid_off, percentage_laid_off, `date`, stage, country, funds_raised_millions  
+    ) AS row_num  
+    FROM layoffs_staging  
+)  
+SELECT *  
+FROM duplicate_cte  
 WHERE row_num > 1;
 
 -- We can see the duplicate rows but cant delete them directly so create table 3 using adding row_num column
@@ -51,40 +50,33 @@ CREATE TABLE `layoffs_staging2` (
   `row_num` INT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-
-SELECT *
-FROM layoffs_staging2;
-
 -- Inerting data into new table
-INSERT INTO layoffs_staging2
-select * , 
-ROW_NUMBER() OVER(
-PARTITION BY Company, location, industry, total_laid_off, percentage_laid_off, `date`, stage, country, funds_raised_millions) as row_num
-From layoffs_staging;
-
-SELECT *
-FROM layoffs_staging2 
-where row_num > 1;
+INSERT INTO layoffs_staging2  
+SELECT *,  
+ROW_NUMBER() OVER (  
+    PARTITION BY company, location, industry, total_laid_off, percentage_laid_off, `date`, stage, country, funds_raised_millions  
+) AS row_num  
+FROM layoffs_staging;
 
 -- deleting duplicate rows 
 DELETE 
 FROM layoffs_staging2
 where row_num > 1;
 
--- Standardizing data
-
+--2.Standardizing data
+-- To check whether there are extra spaces
 SELECT company, TRIM(company)
 FROM layoffs_staging2;
 
--- Remove dextra spaces from company column
+-- to Remove dextra spaces from company column
 UPDATE layoffs_staging2
 SET company = TRIM(company);
 
--- for checking if any issue
+-- to check any inconsistencies in industry
 SELECT DISTINCT industry
 FROM layoffs_staging2;
 
--- for checking the what value is maximum 
+-- to check which value is appearing mostly
 SELECT * 
 FROM layoffs_staging2
 where industry LIKE 'crypto%';
@@ -94,11 +86,11 @@ UPDATE layoffs_staging2
 SET industry = 'crypto'
 WHERE industry LIKE 'crypto%';
 
--- Checking country column
+-- to check country column
 SELECT DISTINCT country
 FROM layoffs_staging;
 
--- technique for removing extra charaters from end
+-- detecting extra charaters from end
 SELECT DISTINCT country, TRIM(TRAILING '.' FROM country)
 FROM layoffs_staging2
 ORDER BY 1;
@@ -121,7 +113,7 @@ ALTER TABLE layoffs_staging2
 MODIFY COLUMN `date` DATE;
 
 
--- Null Values and Blank Values
+-- 3.Null Values and Blank Values
 SELECT *
 FROM layoffs_staging2
 where industry IS NULL
@@ -145,29 +137,30 @@ WHERE company = 'Juul';
 
 -- Populating blank values
 
--- Finding which value is corresponding
-SELECT *
-FROM layoffs_staging2 AS t1
-join layoffs_staging2 AS t2
-	ON t1.company = t2.company
-    AND t1.location = t2.location
-WHERE t1.industry IS NULL OR t1.industry = ''
+-- to check  which value is corresponding
+SELECT *  
+FROM layoffs_staging2 AS t1  
+JOIN layoffs_staging2 AS t2  
+    ON t1.company = t2.company  
+    AND t1.location = t2.location  
+WHERE t1.industry IS NULL OR t1.industry = ''  
 AND t2.industry IS NOT NULL;
+
 
 -- Before populating changing all blank values to null
 UPDATE layoffs_staging2
 SET industry = NULL
 WHERE industry = '';
 
-UPDATE layoffs_staging2 t1
-JOIN  layoffs_staging2 t2
-	ON t1.company = t2.company
-SET t1.industry = t2.industry
-WHERE t1.industry IS NULL
+-- Populating Values
+UPDATE layoffs_staging2 t1  
+JOIN layoffs_staging2 t2  
+    ON t1.company = t2.company  
+SET t1.industry = t2.industry  
+WHERE t1.industry IS NULL  
 AND t2.industry IS NOT NULL;
 
-
--- Removing columns and rows
+--4.Removing columns and rows
 SELECT * 
 FROM layoffs_staging2
 WHERE total_laid_off IS NULL
@@ -182,6 +175,7 @@ AND percentage_laid_off IS NULL;
 ALTER TABLE layoffs_staging2
 DROP COLUMN row_num;
 
+-- Final clean dataset
 SELECT * 
 FROM layoffs_staging2
 
